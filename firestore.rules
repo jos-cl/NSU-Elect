@@ -1,0 +1,199 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function roleFromClaims() {
+      return signedIn() && request.auth.token.role is string ? request.auth.token.role : null;
+    }
+
+    function roleFromProfile() {
+      return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : null;
+    }
+
+    function userRole() {
+      return roleFromClaims() != null ? roleFromClaims() : roleFromProfile();
+    }
+
+    function hasAnyRole(roleA, roleB) {
+      return signedIn() && (
+        (request.auth.token.role is string && (request.auth.token.role == roleA || request.auth.token.role == roleB))
+        || (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role is string
+          && (
+            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == roleA
+            || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == roleB
+          )
+        )
+      );
+    }
+
+    function userStudentNumber() {
+      return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.studentNumber
+        : null;
+    }
+
+    function isStudent() {
+      return signedIn() && userRole() == 'student';
+    }
+
+    function isCommission() {
+      return signedIn() && userRole() == 'commission';
+    }
+
+    function isSao() {
+      return signedIn() && userRole() == 'sao';
+    }
+
+    function isAdmin() {
+      return signedIn() && userRole() == 'admin';
+    }
+
+    function isStaff() {
+      return isCommission() || isSao() || isAdmin();
+    }
+
+    function voteDocId(electionId) {
+      return electionId + '_' + userStudentNumber();
+    }
+
+    function currentStudentExists() {
+      return userStudentNumber() != null
+        && exists(/databases/$(database)/documents/students/$(userStudentNumber()));
+    }
+
+    function currentStudentPaidUp() {
+      return currentStudentExists()
+        && get(/databases/$(database)/documents/students/$(userStudentNumber())).data.paidStatus == true;
+    }
+
+    function electionExists(electionId) {
+      return exists(/databases/$(database)/documents/elections/$(electionId));
+    }
+
+    function electionHasVotingWindow(electionId) {
+      return electionExists(electionId)
+        && get(/databases/$(database)/documents/elections/$(electionId)).data.startDate is timestamp
+        && get(/databases/$(database)/documents/elections/$(electionId)).data.endDate is timestamp;
+    }
+
+    function electionHasNominationWindow(electionId) {
+      return electionExists(electionId)
+        && get(/databases/$(database)/documents/elections/$(electionId)).data.nominationStart is timestamp
+        && get(/databases/$(database)/documents/elections/$(electionId)).data.nominationEnd is timestamp;
+    }
+
+    function votingWindowOpen(electionId) {
+      return electionHasVotingWindow(electionId)
+        && request.time >= get(/databases/$(database)/documents/elections/$(electionId)).data.startDate
+        && request.time <= get(/databases/$(database)/documents/elections/$(electionId)).data.endDate;
+    }
+
+    function nominationWindowOpen(electionId) {
+      return electionHasNominationWindow(electionId)
+        && request.time >= get(/databases/$(database)/documents/elections/$(electionId)).data.nominationStart
+        && request.time <= get(/databases/$(database)/documents/elections/$(electionId)).data.nominationEnd;
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == 'student'
+        && request.resource.data.keys().hasOnly(['role', 'studentNumber', 'fullName', 'updatedAt', 'createdAt']);
+      allow delete: if false;
+    }
+
+    match /students/{studentId} {
+      allow get: if isStaff()
+        || (isStudent() && userStudentNumber() == studentId)
+        || (signedIn() && request.auth.token.firebase.sign_in_provider == 'anonymous');
+      allow list: if isStaff();
+      allow write: if hasAnyRole('sao', 'admin');
+    }
+
+    match /elections/{electionId} {
+      allow read, list: if true;
+      allow create, update, delete: if hasAnyRole('commission', 'sao');
+
+      match /positions/{positionId} {
+        allow read, list: if true;
+        allow create, update, delete: if hasAnyRole('commission', 'sao');
+      }
+    }
+
+    match /candidates/{candidateId} {
+      allow read, list: if true;
+      allow create, delete: if isCommission() || isSao();
+      allow update: if isCommission() || isSao()
+        || (
+          isStudent()
+          && request.resource.data.diff(resource.data).changedKeys().hasOnly(['votes', 'updatedAt'])
+          && request.resource.data.votes == resource.data.votes + 1
+          && resource.data.approved == true
+          && resource.data.disqualified != true
+          && !exists(/databases/$(database)/documents/votes/$(voteDocId(resource.data.electionId)))
+          && existsAfter(/databases/$(database)/documents/votes/$(voteDocId(resource.data.electionId)))
+        );
+    }
+
+    match /votes/{voteId} {
+      allow get: if isStaff()
+        || (isStudent() && voteId.matches('^.*_' + userStudentNumber() + '$'));
+      allow list: if isStaff();
+      allow create: if isStudent()
+        && currentStudentPaidUp()
+        && voteId == voteDocId(request.resource.data.electionId)
+        && votingWindowOpen(request.resource.data.electionId)
+        && request.resource.data.studentId == userStudentNumber();
+      allow update, delete: if false;
+    }
+
+    match /nominations/{nominationId} {
+      allow read: if hasAnyRole('commission', 'sao')
+        || hasAnyRole('admin', 'admin')
+        || (isStudent() && resource.data.studentId == userStudentNumber());
+      allow create: if isStudent()
+        && currentStudentPaidUp()
+        && request.resource.data.studentId == userStudentNumber()
+        && request.resource.data.electionId is string
+        && electionExists(request.resource.data.electionId)
+        && nominationWindowOpen(request.resource.data.electionId)
+        && request.resource.data.positionId is string
+        && exists(/databases/$(database)/documents/elections/$(request.resource.data.electionId)/positions/$(request.resource.data.positionId));
+      allow update: if hasAnyRole('commission', 'sao') || hasAnyRole('admin', 'admin');
+      allow delete: if false;
+    }
+
+    match /electoral_commission/{docId} {
+      allow read: if signedIn();
+      allow write: if isSao() || isAdmin();
+    }
+
+    match /participation_stats/{docId} {
+      allow read, list: if true;
+      allow write: if false;
+    }
+
+    match /past_presidents/{docId} {
+      allow read, list: if true;
+      allow write: if isCommission() || isSao();
+    }
+
+    match /academic_terms/{docId} {
+      allow read: if signedIn();
+      allow write: if isSao() || isAdmin();
+    }
+
+    match /audit_logs/{logId} {
+      allow read: if isStaff();
+      allow write: if false;
+    }
+  }
+}

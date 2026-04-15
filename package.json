@@ -1,0 +1,16 @@
+{
+  "name": "nsu-elect",
+  "private": true,
+  "scripts": {
+    "emulators": "firebase emulators:start --only hosting,functions,firestore,auth",
+    "deploy": "firebase deploy",
+    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes,storage",
+    "deploy:app": "firebase deploy --only hosting,functions"
+  },
+  "dependencies": {
+    "firebase": "^12.11.0"
+  },
+  "devDependencies": {
+    "firebase-tools": "^14.18.0"
+  }
+}

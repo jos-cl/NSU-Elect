@@ -1,0 +1,21 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isStaff() {
+      return signedIn() && request.auth.token.role in ['commission', 'sao', 'admin'];
+    }
+
+    match /candidate-photos/{allPaths=**} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    match /system/{allPaths=**} {
+      allow read, write: if isStaff();
+    }
+  }
+}
