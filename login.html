@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Login | NSUElect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/images/NSU%20Elect%20logo.png" type="image/png">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="/index.html">
+        <img src="/images/NSU%20Elect%20logo.png" alt="NSUElect logo">
+        <span>NSUElect</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/index.html">Home</a>
+        <a href="/results.html">Results</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="shell hero-grid">
+      <section class="panel hero-copy">
+        <div class="status-pill upcoming">Student access</div>
+        <h1>Student number login</h1>
+        <p>Enter your Nortec student number only to access your NSUElect portal.</p>
+      </section>
+      <section class="panel form-card" style="padding: 2rem;">
+        <div class="notice" data-login-notice hidden></div>
+        <form data-login-form>
+          <div class="field">
+            <label for="studentNumber">Student Number</label>
+            <input id="studentNumber" name="studentNumber" placeholder="2501006840" required>
+          </div>
+          <button type="submit">Continue</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="/js/auth.js?v=20260419-3"></script>
+</body>
+</html>

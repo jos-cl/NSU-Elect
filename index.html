@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NSUElect | Nortec Student Union Elections</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/images/NSU%20Elect%20logo.png" type="image/png">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="/index.html">
+        <img src="/images/NSU%20Elect%20logo.png" alt="NSUElect logo">
+        <span>NSUElect</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/constitution.html">Constitution</a>
+        <a href="/login.html">Student Login</a>
+        <a href="/staff-login.html">Staff Login</a>
+        <a href="/results.html">Results</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div class="panel hero-copy">
+          <div class="status-pill active">Constitution compliant</div>
+          <h1>Vote. Verify. Declare.</h1>
+          <p class="serif">NSUElect is the election platform for the Nortec Student Union and class representative system. It enforces paid-up eligibility, commission-led election management, secret ballots, real-time leaderboards, and deployable Firebase infrastructure with local emulators for testing.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="/login.html">Enter Student Portal</a>
+            <a class="button button-secondary" href="/staff-login.html">Staff Portal</a>
+            <a class="button button-secondary" href="/constitution.html">Read Constitution</a>
+            <a class="button button-secondary" href="/results.html">View Public Results</a>
+          </div>
+        </div>
+        <aside class="panel logo-card">
+          <img src="/images/NSU%20Elect%20logo.png" alt="NSUElect logo mark">
+          <div class="tag">Northern Technical College</div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <h2>System Scope</h2>
+            <p class="muted">Built around Articles 11, 13, 15, and related constitutional procedures.</p>
+          </div>
+        </div>
+        <div class="grid-3">
+          <article class="card">
+            <h3>Student Elections</h3>
+            <p>Students log in with a verified student number, vote once per position, apply for nomination, and track leaders in real time.</p>
+          </article>
+          <article class="card">
+            <h3>Independent Commission</h3>
+            <p>The Electoral Commission schedules elections, processes nominations, disqualifies candidates, declares unopposed candidates, and finalizes winners.</p>
+          </article>
+          <article class="card">
+            <h3>Oversight and Analytics</h3>
+            <p>SAO oversight, participation reporting, audit trails, and academic-term scheduling checks are built into the backend flow.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <h2>Core Pages</h2>
+            <p class="muted">Frontend pages mapped to the main user roles.</p>
+          </div>
+        </div>
+        <div class="card-grid">
+          <a class="card" href="/dashboard.html"><h3>Student Dashboard</h3><p>Election state, leaders, voting status, and past presidents.</p></a>
+          <a class="card" href="/commission/index.html"><h3>Commission Dashboard</h3><p>Scheduling, approvals, disqualifications, and declarations.</p></a>
+          <a class="card" href="/sao/index.html"><h3>SAO Dashboard</h3><p>Commission appointments, reporting, and student imports.</p></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell">NSUElect runs on Firebase Hosting, Firestore, Authentication, Cloud Functions, and the Local Emulator Suite.</div>
+  </footer>
+</body>
+</html>

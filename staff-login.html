@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Login | NSUElect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/images/NSU%20Elect%20logo.png" type="image/png">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="/index.html">
+        <img src="/images/NSU%20Elect%20logo.png" alt="NSUElect logo">
+        <span>NSUElect</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/index.html">Home</a>
+        <a href="/login.html">Student Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="shell hero-grid">
+      <section class="panel hero-copy">
+        <div class="status-pill active">Staff access</div>
+        <h1>Commission and SAO login</h1>
+        <p>Use your email and password account from Firebase Authentication. On Spark (free tier), access can come from Firestore role profiles in users/{uid} with role set to commission, sao, or admin.</p>
+      </section>
+      <section class="panel form-card" style="padding: 2rem;">
+        <div class="notice" data-staff-notice hidden></div>
+        <form data-staff-login-form>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required>
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="password-input-wrapper">
+              <input id="password" name="password" type="password" required>
+              <button type="button" class="password-toggle-btn" data-password-toggle title="Toggle password visibility">
+                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="eye-slash-icon" style="display: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <button type="submit">Sign in</button>
+          <button type="button" class="button button-reset-password" data-reset-password>Forgot password</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="/js/staff-auth.js?v=20260419-2"></script>
+</body>
+</html>

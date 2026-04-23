@@ -16,7 +16,7 @@ service cloud.firestore {
     }
 
     function userRole() {
-      return roleFromClaims() != null ? roleFromClaims() : roleFromProfile();
+      return roleFromProfile() != null ? roleFromProfile() : roleFromClaims();
     }
 
     function hasAnyRole(roleA, roleB) {
@@ -43,8 +43,37 @@ service cloud.firestore {
       return signedIn() && userRole() == 'student';
     }
 
+    function isAppointedCommissionMember() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/electoral_commission/current)
+        && get(/databases/$(database)/documents/electoral_commission/current).data.members is list
+        && request.auth.uid in get(/databases/$(database)/documents/electoral_commission/current).data.members;
+    }
+
+    function commissionPosition() {
+      return !isAppointedCommissionMember()
+        ? null
+        : (
+          get(/databases/$(database)/documents/electoral_commission/current).data.chairperson == request.auth.uid
+          ? 'chairperson'
+          : (
+            get(/databases/$(database)/documents/electoral_commission/current).data.secretary == request.auth.uid
+            ? 'secretary'
+            : 'member'
+          )
+        );
+    }
+
     function isCommission() {
-      return signedIn() && userRole() == 'commission';
+      return signedIn() && isAppointedCommissionMember();
+    }
+
+    function isCommissionChairperson() {
+      return isCommission() && commissionPosition() == 'chairperson';
+    }
+
+    function isCommissionSecretary() {
+      return isCommission() && commissionPosition() == 'secretary';
     }
 
     function isSao() {
@@ -70,7 +99,12 @@ service cloud.firestore {
 
     function currentStudentPaidUp() {
       return currentStudentExists()
-        && get(/databases/$(database)/documents/students/$(userStudentNumber())).data.paidStatus == true;
+        && (
+          get(/databases/$(database)/documents/students/$(userStudentNumber())).data.paidStatus == true
+          || get(/databases/$(database)/documents/students/$(userStudentNumber())).data.paidStatus == 'true'
+          || get(/databases/$(database)/documents/students/$(userStudentNumber())).data.paidStatus == 'TRUE'
+          || get(/databases/$(database)/documents/students/$(userStudentNumber())).data.paidStatus == 'True'
+        );
     }
 
     function electionExists(electionId) {
@@ -102,7 +136,7 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow read: if signedIn() && request.auth.uid == uid;
+      allow read: if signedIn() && (request.auth.uid == uid || isSao() || isAdmin());
       allow create, update: if signedIn()
         && request.auth.uid == uid
         && request.resource.data.role == 'student'
@@ -120,18 +154,35 @@ service cloud.firestore {
 
     match /elections/{electionId} {
       allow read, list: if true;
-      allow create, update, delete: if hasAnyRole('commission', 'sao');
+      allow create, update, delete: if isCommissionChairperson() || isSao() || isAdmin();
 
       match /positions/{positionId} {
         allow read, list: if true;
-        allow create, update, delete: if hasAnyRole('commission', 'sao');
+        allow create, update, delete: if isCommissionChairperson() || isSao() || isAdmin();
       }
     }
 
     match /candidates/{candidateId} {
       allow read, list: if true;
-      allow create, delete: if isCommission() || isSao();
-      allow update: if isCommission() || isSao()
+      allow create: if isSao() || isAdmin()
+        || (
+          isCommissionSecretary()
+          && request.resource.data.approved == true
+          && request.resource.data.votes == 0
+          && request.resource.data.winner == false
+          && request.resource.data.disqualified == false
+        );
+      allow delete: if isSao() || isAdmin();
+      allow update: if isSao() || isAdmin()
+        || (
+          isCommissionChairperson()
+          && request.resource.data.diff(resource.data).changedKeys().hasOnly([
+            'winner',
+            'disqualified',
+            'disqualificationReason',
+            'updatedAt'
+          ])
+        )
         || (
           isStudent()
           && request.resource.data.diff(resource.data).changedKeys().hasOnly(['votes', 'updatedAt'])
@@ -156,7 +207,7 @@ service cloud.firestore {
     }
 
     match /nominations/{nominationId} {
-      allow read: if hasAnyRole('commission', 'sao')
+      allow read: if (isCommission() || isSao())
         || hasAnyRole('admin', 'admin')
         || (isStudent() && resource.data.studentId == userStudentNumber());
       allow create: if isStudent()
@@ -167,7 +218,7 @@ service cloud.firestore {
         && nominationWindowOpen(request.resource.data.electionId)
         && request.resource.data.positionId is string
         && exists(/databases/$(database)/documents/elections/$(request.resource.data.electionId)/positions/$(request.resource.data.positionId));
-      allow update: if hasAnyRole('commission', 'sao') || hasAnyRole('admin', 'admin');
+      allow update: if isCommissionSecretary() || isSao() || isAdmin();
       allow delete: if false;
     }
 
@@ -183,7 +234,7 @@ service cloud.firestore {
 
     match /past_presidents/{docId} {
       allow read, list: if true;
-      allow write: if isCommission() || isSao();
+      allow write: if isCommissionChairperson() || isSao() || isAdmin();
     }
 
     match /academic_terms/{docId} {

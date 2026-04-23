@@ -1,14 +1,13 @@
 # NSUElect
 
-NSUElect is a Firebase-powered election platform for the Nortec Student Union and class representative elections. This scaffold uses Firebase Hosting, Cloud Functions, Firestore, Authentication, Storage, and the Local Emulator Suite.
+NSUElect is a Firebase-powered election platform for the Nortec Student Union and class representative elections. The default deployment flow is configured for Firebase Spark (no-cost) tier using Hosting and Firestore resources.
 
 ## Stack
 
 - Firebase Hosting for the frontend
-- Firebase Cloud Functions for the HTTP API and scheduled jobs
 - Firestore for elections, candidates, votes, nominations, and analytics
-- Firebase Authentication with custom tokens for student login
 - Local emulators for Hosting, Firestore, Functions, and Auth
+- Optional Blaze-only services: Cloud Functions and Storage (not included in default deploy)
 
 ## Project Structure
 
@@ -47,13 +46,13 @@ Default local URLs:
 
 ## Deploy
 
-Deploy everything:
+Deploy Spark-safe targets (default):
 
 ```bash
 npm run deploy
 ```
 
-Deploy app and backend only:
+Deploy hosting only:
 
 ```bash
 npm run deploy:app
@@ -65,9 +64,15 @@ Deploy rules and indexes only:
 npm run deploy:rules
 ```
 
+Deploy all services (requires Blaze plan and Storage setup):
+
+```bash
+npm run deploy:blaze
+```
+
 ## Notes
 
-- The student login flow uses a Cloud Function that issues Firebase custom tokens after the student number is verified.
-- Voting is submitted through a Cloud Function and written transactionally to prevent double voting.
+- Cloud Functions and Storage deployments are excluded from default scripts so you can stay on Spark tier.
+- If you later move to Blaze, run `npm run deploy:blaze` after enabling required APIs and Storage in Firebase Console.
 - Election scheduling enforces the constitutional rule that elections must end at least five weeks before the end of term three.
 - Frontend pages are emulator-aware and can target local Functions, Firestore, and Auth automatically when opened from local hosting.

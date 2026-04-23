@@ -3,9 +3,10 @@
   "private": true,
   "scripts": {
     "emulators": "firebase emulators:start --only hosting,functions,firestore,auth",
-    "deploy": "firebase deploy",
-    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes,storage",
-    "deploy:app": "firebase deploy --only hosting,functions"
+    "deploy": "firebase deploy --only \"hosting,firestore:rules,firestore:indexes\"",
+    "deploy:rules": "firebase deploy --only \"firestore:rules,firestore:indexes\"",
+    "deploy:app": "firebase deploy --only \"hosting\"",
+    "deploy:blaze": "firebase deploy"
   },
   "dependencies": {
     "firebase": "^12.11.0"

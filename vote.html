@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vote | NSUElect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/images/NSU%20Elect%20logo.png" type="image/png">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="/dashboard.html">
+        <img src="/images/NSU%20Elect%20logo.png" alt="NSUElect logo">
+        <span>NSUElect</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/nominate.html">Nominate</a>
+        <a href="/results.html">Results</a>
+        <a href="#" data-action="logout">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="shell">
+      <div class="section-head">
+        <div>
+          <h1>Secret Ballot</h1>
+          <p class="muted">Choose one candidate per position, then confirm before final submission.</p>
+        </div>
+      </div>
+      <div class="notice" data-vote-notice hidden></div>
+      <form data-vote-form>
+        <div class="list" data-ballot></div>
+        <div class="button-row">
+          <button type="submit">Submit Ballot</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script type="module" src="/js/vote.js?v=20260415-1"></script>
+</body>
+</html>

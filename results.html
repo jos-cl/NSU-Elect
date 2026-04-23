@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Results | NSUElect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/images/NSU%20Elect%20logo.png" type="image/png">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="/index.html">
+        <img src="/images/NSU%20Elect%20logo.png" alt="NSUElect logo">
+        <span>NSUElect</span>
+      </a>
+      <nav class="nav-links" id="main-nav"></nav>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="shell">
+      <div class="section-head">
+        <div>
+          <h1>Election Results</h1>
+          <p class="muted">Use the election ID in the query string, for example results.html?electionId=abc123.</p>
+        </div>
+      </div>
+      <div class="notice" data-results-notice hidden></div>
+      <div class="grid-3" data-results-board></div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { fetchResults, getSession, setNotice } from '/js/utils.js';
+    import { auth, signOut } from '/js/firebase-init.js';
+
+    const session = getSession();
+    const nav = document.getElementById('main-nav');
+    if (session && session.role === 'student') {
+      nav.innerHTML = `
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/nominate.html">Nominate</a>
+        <a class="active-link" href="/results.html">Results</a>
+        <a href="#" id="nav-logout">Logout</a>
+      `;
+      document.getElementById('nav-logout').addEventListener('click', async (e) => {
+        e.preventDefault();
+        localStorage.removeItem('nsu-elect-session');
+        await signOut(auth);
+        window.location.href = '/index.html';
+      });
+    } else {
+      nav.innerHTML = `
+        <a href="/index.html">Home</a>
+        <a href="/login.html">Login</a>
+      `;
+    }
+
+    const notice = document.querySelector('[data-results-notice]');
+    const board = document.querySelector('[data-results-board]');
+    const electionId = new URLSearchParams(window.location.search).get('electionId');
+
+    if (!electionId) {
+      setNotice(notice, 'Provide an electionId in the page URL to load results.', 'error');
+    } else {
+      fetchResults(electionId)
+        .then((payload) => {
+          board.innerHTML = payload.results.map((group) => `
+            <article class="card">
+              <h3>${group.position.name}</h3>
+              ${group.candidates.length ? group.candidates.map((candidate) => `
+                <div class="list-item">
+                  <strong>${candidate.fullName}</strong>
+                  <div class="muted">${candidate.votes || 0} votes${candidate.winner ? ' · declared winner' : ''}</div>
+                </div>
+              `).join('') : '<p class="muted">No candidates found.</p>'}
+            </article>
+          `).join('');
+        })
+        .catch((error) => setNotice(notice, error.message, 'error'));
+    }
+  </script>
+</body>
+</html>

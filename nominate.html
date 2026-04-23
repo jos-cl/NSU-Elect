@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apply for Nomination | NSUElect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/images/NSU%20Elect%20logo.png" type="image/png">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="/dashboard.html">
+        <img src="/images/NSU%20Elect%20logo.png" alt="NSUElect logo">
+        <span>NSUElect</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/dashboard.html">Dashboard</a>
+        <a class="active-link" href="/nominate.html">Nominate</a>
+        <a href="/results.html">Results</a>
+        <a href="#" data-action="logout">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="shell hero-grid">
+      <section class="panel hero-copy">
+        <h1>Nomination Application</h1>
+        <p>Submit your interest in a student union or class representative position. Applications remain pending until the Electoral Commission approves or rejects them.</p>
+      </section>
+      <section class="panel form-card" style="padding: 2rem;">
+        <div class="notice" data-nomination-notice hidden></div>
+        <form data-nomination-form>
+          <div class="field">
+            <label for="electionId">Election</label>
+            <select id="electionId" name="electionId" required></select>
+          </div>
+          <div class="field">
+            <label for="positionId">Position</label>
+            <select id="positionId" name="positionId" required></select>
+          </div>
+          <div class="field">
+            <label for="party">Party or Platform</label>
+            <input id="party" name="party" placeholder="Optional">
+          </div>
+          <div class="field">
+            <label for="manifesto">Manifesto</label>
+            <textarea id="manifesto" name="manifesto" placeholder="State your agenda and why students should vote for you." required></textarea>
+          </div>
+          <button type="submit">Submit Nomination</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="/js/nomination.js?v=20260415-2"></script>
+</body>
+</html>
